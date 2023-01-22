@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  sessionAffinity: ClientIP
+  selector: 
+    app: nginx-server
+  type: LoadBalancer
+  ports:
+    - port: 5000
+      targetPort: 80

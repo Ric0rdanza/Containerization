@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-server
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: nginx-server
+  template:
+    metadata:
+      labels:
+        app: nginx-server
+    spec:
+      containers:
+        - name: nginx-server #name of containers
+          image: odonataprime/server  #image of authorization 
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: httpd
+              containerPort: 80
+              protocol: TCP

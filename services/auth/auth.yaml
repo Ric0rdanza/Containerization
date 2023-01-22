@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-app
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: auth-demo
+  template:
+    metadata:
+      labels:
+        app: auth-demo
+    spec:
+      containers:
+        - name: auth-demo #name of containers
+          image: odonataprime/auth:latest  #image of authorization 
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: httpd
+              containerPort: 8000
+              protocol: TCP

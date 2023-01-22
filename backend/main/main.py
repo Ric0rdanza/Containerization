@@ -76,12 +76,23 @@ def is_url(candidate):
 # Send a request to login server to varify that token is correct
 def is_token_valid(token):
 	data = {"Authorization": token}
-	username = requests.post("http://Auth:8000/verify", headers = data)
+	username = requests.post("http://127.0.0.1:8000/verify", headers = data)
 	if username.status_code == 200:
 		uid = username.text
 		return uid
 	else:
 		return False
+
+def get_uid(request):
+	token = ""
+	if "Authorization" in request.headers:
+		token = request.headers["Authorization"]
+	else:
+		return "forbidden", 403
+	uid = is_token_valid(token)
+	if not uid:
+		return "forbidden", 403
+	return uid, 200
 
 class WithId(Resource):
 	# e.g. 127.0.0.1:5000/<shortened url>
@@ -97,14 +108,9 @@ class WithId(Resource):
 	# Delete a shortened url
 	def delete(self, id):
 		# check the correctness of the token
-		token = ""
-		if "Authorization" in request.headers:
-			token = request.headers["Authorization"]
-		else:
-			return "forbidden", 403
-		uid = is_token_valid(token)
-		if not uid:
-			return "forbidden", 403
+		uid, status = get_uid(request)
+		if status != 200:
+			return uid, status
 		# short url not exists
 		if id not in map_url:
 			return "error", 404
@@ -136,14 +142,9 @@ class WithId(Resource):
 		if not is_url(args['url']):
 			return "error", 400
 		# verify the token
-		token = ""
-		if "Authorization" in request.headers:
-			token = request.headers["Authorization"]
-		else:
-			return "forbidden", 403
-		uid = is_token_valid(token)
-		if not uid:
-			return "forbidden", 403
+		uid, status = get_uid(request)
+		if status != 200:
+			return uid, status
 		# find url to be modified
 		url_to_be_modified = ""
 		for key in map_url[id]:
@@ -170,14 +171,9 @@ class WithoutId(Resource):
 	# e.g. 127.0.0.1:5000/
 	# Retrieve all url map of user
 	def get(self):
-		token = ""
-		if "Authorization" in request.headers:
-			token = request.headers["Authorization"]
-		else:
-			return "forbidden", 403
-		uid = is_token_valid(token)
-		if not uid:
-			return "forbidden", 403
+		uid, status = get_uid(request)
+		if status != 200:
+			return uid, status
 		result = {}
 		for key_short in map_url:
 			for key_long in map_url[key_short]:
@@ -232,14 +228,9 @@ class WithoutId(Resource):
 			return short_url, 201
 	# Delete all mapping of a user
 	def delete(self):
-		token = ""
-		if "Authorization" in request.headers:
-			token = request.headers["Authorization"]
-		else:
-			return "forbidden", 403
-		uid = is_token_valid(token)
-		if not uid:
-			return "forbidden", 403
+		uid, status = get_uid(request)
+		if status != 200:
+			return uid, status
 		delete_list = []
 		for key_short in map_url:
 			for key_long in map_url[key_short]:
