@@ -76,7 +76,7 @@ def is_url(candidate):
 # Send a request to login server to varify that token is correct
 def is_token_valid(token):
 	data = {"Authorization": token}
-	username = requests.post("http://127.0.0.1:8000/verify", headers = data)
+	username = requests.post("http://10.106.44.01:5001/verify", headers = data)
 	if username.status_code == 200:
 		uid = username.text
 		return uid
@@ -132,40 +132,6 @@ class WithId(Resource):
 		if not map_url[id]:
 			del map_url[id]
 		return '', 204
-
-	# Update a url
-	def put(self, id):
-		# check correctness of given url
-		if id not in map_url:
-			return "error", 404
-		args = parser.parse_args()
-		if not is_url(args['url']):
-			return "error", 400
-		# verify the token
-		uid, status = get_uid(request)
-		if status != 200:
-			return uid, status
-		# find url to be modified
-		url_to_be_modified = ""
-		for key in map_url[id]:
-			if uid in map_url[id][key]["owner"]:
-				url_to_be_modified = key
-		# modify
-		if url_to_be_modified == "":
-			return "forbidden", 403
-		else:
-			# remove the user from owner of original url
-			if len(map_url[id][url_to_be_modified]["owner"]) > 1:
-				map_url[id][url_to_be_modified]["owner"].remove(uid)
-			else:
-				del map_url[id][url_to_be_modified]
-		# create a new mapping or add username to existing mapping
-		if args['url'] in map_url[id]:
-			map_url[id][args['url']]["owner"].append(uid)
-		else:
-			task = {args['url']: {"owner": [uid]}}
-			map_url[id].update(task)
-		return id, 200
 
 class WithoutId(Resource):
 	# e.g. 127.0.0.1:5000/

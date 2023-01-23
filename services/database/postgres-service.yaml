@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: Service # Create service
 metadata:
-  name: postgres # Sets the service name
+  name: postgres-service # Sets the service name
   labels:
     app: postgres # Defines app to create service for
 spec:
-  type: NodePort # Sets the service type
+  type: LoadBalancer # Sets the service type
   ports:
     - port: 5432 # Sets the port to run the postgres application
-  selector:
+  clusterIP: 10.106.44.03
+  selector: 
     app: postgres

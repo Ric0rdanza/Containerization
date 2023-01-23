@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-app
+  name: main-app
 spec:
   replicas: 1
   selector: 
     matchLabels:
-      app: auth-demo
+      app: main-demo
   template:
     metadata:
       labels:
-        app: auth-demo
+        app: main-demo
     spec:
       containers:
-        - name: auth-demo #name of containers
-          image: odonataprime/auth:latest  #image of authorization 
-          imagePullPolicy: Always
+        - name: main-demo #name of containers
+          image: odonataprime/shortener:latest  #image of authorization 
+          imagePullPolicy: IfNotPresent
           ports:
             - name: httpd
               containerPort: 8000
@@ -24,14 +24,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: auth-service
+  name: main-service
 spec:
   sessionAffinity: ClientIP
   selector: 
-    app: auth-demo
+    app: main-demo
   type: LoadBalancer
-  clusterIP: 10.106.44.01 #fixed in cluster IP of the authorization service
+  clusterIP: 10.106.44.02 #fixed in cluster IP of the main service
   ports:
-    - port: 5001
+    - port: 5002
       targetPort: 8000
-

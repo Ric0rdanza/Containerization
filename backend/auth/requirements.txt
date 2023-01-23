@@ -4,3 +4,4 @@ flask
 flask-restful
 flask-cors
 pyjwt
+psycopg2
