@@ -15,7 +15,7 @@ spec:
       containers:
         - name: main-demo #name of containers
           image: odonataprime/shortener:latest  #image of authorization 
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - name: httpd
               containerPort: 8000

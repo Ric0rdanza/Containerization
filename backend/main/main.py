@@ -4,56 +4,123 @@ from flask_cors import CORS
 
 import requests
 import re
-import hashlib
+import random
+import sys
+import base62
+
+import psycopg2
 
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
 
-# Shortener with md5
-def get_md5(s):
-	s = s.encode("utf8")
-	m = hashlib.md5()
-	m.update(s)
-	return m.hexdigest()
+def db_connect():
+	conn = psycopg2.connect(database="postgresdb", user="postgresadmin", password="zxcZXC123", host="10.106.44.03")
+	return conn
 
-code_map = (  
-	'a' , 'b' , 'c' , 'd' , 'e' , 'f' , 'g' , 'h' ,  
-	'i' , 'j' , 'k' , 'l' , 'm' , 'n' , 'o' , 'p' ,  
-	'q' , 'r' , 's' , 't' , 'u' , 'v' , 'w' , 'x' ,  
-	'y' , 'z' , '0' , '1' , '2' , '3' , '4' , '5' ,  
-	'6' , '7' , '8' , '9' , 'A' , 'B' , 'C' , 'D' ,  
-	'E' , 'F' , 'G' , 'H' , 'I' , 'J' , 'K' , 'L' ,  
-	'M' , 'N' , 'O' , 'P' , 'Q' , 'R' , 'S' , 'T' ,  
-	'U' , 'V' , 'W' , 'X' , 'Y' , 'Z'  
-) 
+def db_exists_shorturl(shorturl):
+	conn = db_connect()
+	cur = conn.cursor()
+	cur.execute("SELECT * FROM urls WHERE shorturl = \'%s\'" % (shorturl))
+	if cur.rowcount == 0:
+		conn.close()
+		return False
+	conn.close()
+	return True
 
-def get_hash_key(long_url):  
-    hkeys = []  
-    hex = get_md5(long_url)  
-    for i in range(0, 4):  
-        n = int(hex[i*8:(i+1)*8], 16)  
-        v = []  
-        e = 0  
-        for j in range(0, 5):  
-            x = 0x0000003D & n  
-            e |= ((0x00000002 & n ) >> 1) << j  
-            v.insert(0, code_map[x])  
-            n = n >> 6  
-        e |= n << 5  
-        v.insert(0, code_map[e & 0x0000003D])  
-        hkeys.append(''.join(v))  
-    return hkeys 
+def get_shorturl(long_url):  
+	random.seed(10)
+	num = random.randint(0, sys.maxsize)
+	short_url = base62.encode(num)
+	while db_exists_shorturl(short_url):
+		num = random.randint(0, sys.maxsize)
+		short_url = base62.encode(num)
+	return short_url 
 
-# {Shortened_url : 
-#		{Original_url: 
-#			{owner: [Usernames]}
-#		}, 
-#		{Modified_url:
-#			{owner: [Usernames]}
-#		}
-# }
-map_url = {}
+# database structure:
+# urls: {originalurl pk, shorturl}
+# ownership: {username, shorturl}
+
+def db_create_shorturl(username, originalurl, shorturl):
+	conn = db_connect()
+	cur = conn.cursor()
+	cur.execute("SELECT * FROM urls WHERE originalurl = \'%s\'" % (originalurl))
+	if cur.rowcount == 0:
+		cur.execute("INSERT INTO urls (originalurl, shorturl) VALUES (\'%s\', \'%s\')" % (originalurl, shorturl))
+		cur.execute("INSERT INTO ownership (username, shorturl) VALUES (\'%s\', \'%s\')" % (username, shorturl))
+		conn.commit()
+		conn.close()
+		return shorturl
+	shorturl = cur.fetchone()[1]
+	cur.execute("SELECT * FROM ownership WHERE username = \'%s\' AND shorturl = \'%s\'" % (username, shorturl))
+	if cur.rowcount == 0:
+		cur.execute("INSERT INTO ownership (username, shorturl) VALUES (\'%s\', \'%s\')" % (username, shorturl))
+		conn.commit()
+		conn.close()
+		return shorturl
+	else:
+		conn.close()
+		return shorturl
+
+def db_delete_shorturl(username, shorturl):
+	conn = db_connect()
+	cur = conn.cursor()
+	cur.execute("SELECT * FROM ownership WHERE username = \'%s\' AND shorturl = \'%s\'" % (username, shorturl))
+	if cur.rowcount == 0:
+		conn.close()
+		return False
+	cur.execute("DELETE FROM ownership WHERE username = \'%s\' AND shorturl = \'%s\'" % (username, shorturl))
+	cur.execute("SELECT * FROM ownership WHERE shorturl = \'%s\'" % (shorturl))
+	if cur.rowcount == 0:
+		cur.execute("DELETE FROM urls WHERE shorturl = \'%s\'" % (shorturl))
+	conn.commit()
+	conn.close()
+	return True
+
+def db_get_originalurl(shorturl):
+	conn = db_connect()
+	cur = conn.cursor()
+	cur.execute("SELECT * FROM urls WHERE shorturl = \'%s\'" % (shorturl))
+	if cur.rowcount == 0:
+		conn.close()
+		return ""
+	originalurl = cur.fetchone()[0]
+	conn.close()
+	return originalurl
+
+def db_get_all_url_map(username):
+	conn = db_connect()
+	cur = conn.cursor()
+	cur.execute("SELECT originalurl, urls.shorturl FROM ownership, urls WHERE ownership.username = \'%s\' AND ownership.shorturl = urls.shorturl" % (username))
+	if cur.rowcount == 0:
+		conn.close()
+		return {}
+	url_map = {}
+	for row in cur:
+		url_map[row[0]] = row[1]
+	conn.close()
+	return url_map
+
+def db_delete_all_url_map(username):
+	conn = db_connect()
+	cur = conn.cursor()
+	cur.execute("SELECT shorturl FROM ownership WHERE username = \'%s\'" % (username))
+	if cur.rowcount == 0:
+		conn.close()
+		return False
+	shorturl_list = []
+	for row in cur:
+		shorturl_list.append(row[0])
+	cur.execute("DELETE FROM ownership WHERE username = \'%s\'" % (username))
+	conn.commit()
+	cur = conn.cursor()
+	for shorturl in shorturl_list:
+		cur.execute("SELECT * FROM ownership WHERE shorturl = \'%s\'" % (shorturl))
+		if cur.rowcount == 0:
+			cur.execute("DELETE FROM urls WHERE shorturl = \'%s\'" % (shorturl))
+	conn.commit()
+	conn.close()
+	return True
 
 parser = reqparse.RequestParser()
 
@@ -98,12 +165,10 @@ class WithId(Resource):
 	# e.g. 127.0.0.1:5000/<shortened url>
 	# Retrieve original url from short url given
 	def get(self, id):
-		if id not in map_url:
+		originalurl = db_get_originalurl(id)
+		if originalurl == "":
 			return "error", 404
-		url = []
-		for key in map_url[id]:
-			url.append(key)
-		return url, 301
+		return originalurl, 200
 
 	# Delete a shortened url
 	def delete(self, id):
@@ -111,26 +176,8 @@ class WithId(Resource):
 		uid, status = get_uid(request)
 		if status != 200:
 			return uid, status
-		# short url not exists
-		if id not in map_url:
+		if db_delete_shorturl(uid, id) == False:
 			return "error", 404
-		# find the url user want to delete
-		url_to_be_deleted = ""
-		for key in map_url[id]:
-			if uid in map_url[id][key]["owner"]:
-				url_to_be_deleted = key
-		# delete
-		if url_to_be_deleted == "":
-			return "forbidden", 403
-		else:
-			if len(map_url[id][url_to_be_deleted]["owner"]) > 1:
-				# more than one user owned the mapping
-				map_url[id][url_to_be_deleted]["owner"].remove(uid)
-			else:
-				# only one user owned the mapping
-				del map_url[id][url_to_be_deleted]
-		if not map_url[id]:
-			del map_url[id]
 		return '', 204
 
 class WithoutId(Resource):
@@ -140,79 +187,32 @@ class WithoutId(Resource):
 		uid, status = get_uid(request)
 		if status != 200:
 			return uid, status
-		result = {}
-		for key_short in map_url:
-			for key_long in map_url[key_short]:
-				if uid in map_url[key_short][key_long]["owner"]:
-					result.update({key_short: key_long})
-					break
-
+		result = db_get_all_url_map(uid)
 		return result, 200
 
 	# Create shortened url
 	def post(self):
 		args = parser.parse_args()
 		# verify the token
-		uid = ""
-		token = ""
-		if "Authorization" in request.headers:
-			token = request.headers["Authorization"]
-		else:
-			return "not login", 403
-		uid = is_token_valid(token)
-		if not uid:
-			return uid, 403
+		uid, status = get_uid(request)
+		if status != 200:
+			return uid, status
 		# check correctness of given url
 		if not is_url(args['url']):
 			return "error", 400
-		short_url = get_hash_key(args['url'])
-		short_url = short_url[0]# pick the first piece for test
+			
+		short_url = get_shorturl(args['url'])
+		short_url = db_create_shorturl(uid, args['url'], short_url)
 
-		if short_url in map_url:
-			# short url already exists
-			if args["url"] in map_url[short_url]:
-				# if the mapping has not been modified
-				if uid in map_url[short_url][args["url"]]["owner"]:
-					# user already owned the url
-					return short_url, 201
-				else:
-					# user not owned the url
-					map_url[short_url][args["url"]]["owner"].append(uid)
-					return short_url, 201
-			else:
-				# the mapping has been modified before
-				for key in map_url[short_url]:
-					# if the user sending request modified the mapping, forbidden
-					if uid in map_url[short_url][key]["owner"]:
-						return "forbidden", 403
-				# create a new mapping
-				map_url[short_url].update({args["url"]: {"owner": [uid]}})
-				return short_url, 201
-		else:
-			# short url not exists, create a mapping
-			map_url[short_url] = {args['url']: {"owner": [uid]}}
-			return short_url, 201
+		return short_url, 201
 	# Delete all mapping of a user
 	def delete(self):
 		uid, status = get_uid(request)
 		if status != 200:
 			return uid, status
-		delete_list = []
-		for key_short in map_url:
-			for key_long in map_url[key_short]:
-				# check the ownership
-				if uid in map_url[key_short][key_long]["owner"]:
-					if len(map_url[key_short][key_long]["owner"]) > 1:
-						map_url[key_short][key_long]["owner"].remove(uid)
-					else:
-						del map_url[key_short][key_long]
-					if not map_url[key_short]:
-						delete_list.append(key_short)
-						map_url[key_short].clear()
-				break
-		for i in delete_list:
-			del map_url[i]
-		return "", 404
+		if db_delete_all_url_map(uid) == False:
+			return "error", 404
+		return "", 204
 
 class Test(Resource):
 	def get(self):

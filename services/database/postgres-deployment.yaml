@@ -69,7 +69,11 @@ spec:
           lifecycle: 
             postStart: 
               exec: 
-                command: ["/bin/sh", "-c", "sleep 50 && PGPASSWORD=$POSTGRES_PASSWORD psql -w -d $POSTGRES_DB -U $POSTGRES_USER -c 'CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY,password TEXT);'"]
+                command: 
+                  - /bin/sh
+                  - -c
+                  - sleep 50 && PGPASSWORD=$POSTGRES_PASSWORD psql -w -d $POSTGRES_DB -U $POSTGRES_USER -c 'CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY,password TEXT);CREATE TABLE IF NOT EXISTS urls (originalurl TEXT PRIMARY KEY,shorturl TEXT);CREATE TABLE IF NOT EXISTS ownership (username TEXT,shorturl TEXT);'
+
           volumeMounts: 
             - mountPath: /var/lib/postgresql/data
               name: postgredb
