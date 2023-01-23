@@ -27,7 +27,7 @@ function clearText(field)
             <a href="index.html">
             	<span>URL</span>
             	 Shortener
-                <span class="tagline">Group-5</span>
+                <span class="tagline">Group-?</span>
             </a>
         </div> <!-- end of site_title -->
         <div class="cleaner"></div>
@@ -37,8 +37,7 @@ function clearText(field)
     <div id="templatemo_menu">
         <ul>
             <li><a href="index.html" class="current"><span></span>Home</a></li>
-            <li><a href="login.html"><span></span>Shortener</a></li>
-            <li><a href="details.html"><span></span>Manage URLs</a></li>
+            <li><a href="create_account.html"><span></span>Create Account</a></li>
         </ul>    	
         
     </div> <!-- end of templatemo_menu -->
@@ -219,48 +218,7 @@ function clearText(field)
                 <div class="cleaner"></div>
             </div>
             
-           <div class="post_box">
-                <h2>Manage URLs</h2>
-                <div style="text-align: center; padding-top: 40px; padding-bottom: 40px;">
-                    <script type="text/javascript">
-                        function url_modify() {
-                            if (jwt == "") {
-                                alert("Not logged in")
-                                return
-                            }
-                            var req_modify = new XMLHttpRequest()
-                            var short_url = document.getElementById("short_url_m").value
-                            req_modify.open("PUT", "http://127.0.0.1:5000/main/" + short_url, false)
-                            req_modify.setRequestHeader("Authorization", "Bearer " + JSON.parse(jwt))
-                            req_modify.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
-                            payload = "url=" + document.getElementById("long_url_m").value
-                            req_modify.send(payload)
-                            switch(req_modify.status) {
-                                case 404:
-                                    alert("Not found short URL")
-                                    break
-                                case 400:
-                                    alert("Not a URL")
-                                    break
-                                case 403:
-                                    alert("Authorization failed")
-                                    break
-                                case 200:
-                                    alert("Modification success")
-                                    break
-                            }
-                        }
-                    </script>
-                    <form>
-                        <p style="text-align: center; padding-top: 10px;">Short URL: <input type="text" name="short" id="short_url_m"/></p>
-                        <p style="text-align: center; padding-top: 10px;">Long URL: <input type="text" name="long" id="long_url_m" /></p>
-                        <p style="text-align: center; padding-top: 10px;"><input type="button" value="Modify" onclick="url_modify()"/></p>
-                    </form>
-                </div>
-                <div class="cleaner"></div>
-          </div>
-
-          <div class="post_box pb_last">
+        <div class="post_box pb_last">
             
             <h2>Delete URLs</h2>		
             <div style="text-align: center; padding-top: 40px; padding-bottom: 40px;">
@@ -325,7 +283,7 @@ function clearText(field)
                     <input type="button" value="Delete all" onclick="delete_multiple()" />
                 </form>
             </div>
-         <div class="cleaner"></div>
+            <div class="cleaner"></div>
         </div>
         </div>
     	<div class="cleaner"></div>

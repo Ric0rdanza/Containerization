@@ -2,9 +2,9 @@ FROM debian
 
 RUN apt-get -y update && apt-get -y install nginx
 
-COPY ./html /var/www/html
+COPY ./html /usr/share/nginx/html
 
-COPY ./default.conf /etc/nginx/sites-available/default.conf
+COPY ./default.conf /etc/nginx/sites-available/default
 
 EXPOSE 80/tcp
 

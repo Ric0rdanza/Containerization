@@ -15,7 +15,7 @@ spec:
       containers:
         - name: nginx-server #name of containers
           image: odonataprime/server  #image of authorization 
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - name: httpd
               containerPort: 80
