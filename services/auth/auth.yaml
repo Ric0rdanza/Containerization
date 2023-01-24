@@ -29,7 +29,7 @@ spec:
   sessionAffinity: ClientIP
   selector: 
     app: auth-demo
-  type: LoadBalancer
+  type: ClusterIP
   clusterIP: 10.106.44.01 #fixed in cluster IP of the authorization service
   ports:
     - port: 5001

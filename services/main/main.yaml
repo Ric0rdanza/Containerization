@@ -29,7 +29,7 @@ spec:
   sessionAffinity: ClientIP
   selector: 
     app: main-demo
-  type: LoadBalancer
+  type: ClusterIP
   clusterIP: 10.106.44.02 #fixed in cluster IP of the main service
   ports:
     - port: 5002

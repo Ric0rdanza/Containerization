@@ -5,7 +5,7 @@ metadata:
   labels:
     app: postgres # Defines app to create service for
 spec:
-  type: LoadBalancer # Sets the service type
+  type: ClusterIP # Sets the service type
   ports:
     - port: 5432 # Sets the port to run the postgres application
   clusterIP: 10.106.44.03
