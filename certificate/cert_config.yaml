@@ -32,17 +32,14 @@ spec:
   renewBefore: 2208h #9 months
   subject:
     organizations:
-      - demoorg
-  commonName: demoapi
+      - chen
+  commonName: caissued.local
   isCA: false
   usages:
     - server auth
     - client auth
   dnsNames:
-    - demoapi.default
-    - demoapi.default.svc
-    - demoapi.default.svc.cluster
-    - demoapi.default.svc.cluster.local
+    - my.containter.local
   issuerRef:
     name: ca-issuer
     kind: ClusterIssuer

@@ -53,7 +53,7 @@ function clearText(field)
                         alert("You must enter a short URL!")
                         return
                     }
-                    retrieve_req.open("GET", "https://127.0.0.1:5000/main/" + short_url, false)
+                    retrieve_req.open("GET", "https://my.containter.local/main/" + short_url, false)
                     retrieve_req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
                     retrieve_req.send()
                     var long_urls = JSON.parse(retrieve_req.response)
@@ -84,7 +84,7 @@ function clearText(field)
                                 "username": document.getElementById("uid").value,
                                 "password": document.getElementById("psw").value
                             }
-                            req.open("POST", "https://127.0.0.1:5000/auth/users/login", false)
+                            req.open("POST", "https://my.containter.local/auth/users/login/", false)
                             req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
                             var payload = "username=" + document.getElementById("uid").value + "&password=" + document.getElementById("psw").value
                             req.send(payload)
@@ -152,7 +152,7 @@ function clearText(field)
                                 return
                             }
                             var long_url = document.getElementById("post_long_url").value
-                            post_req.open("POST", "https://127.0.0.1:5000/main/", false)
+                            post_req.open("POST", "https://my.containter.local/main/", false)
                             post_req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
                             token = "Bearer" + " " + JSON.parse(jwt)
                             console.log(token)
@@ -192,7 +192,7 @@ function clearText(field)
                                 alert("Not logged in")
                                 return
                             }
-                            req_retrieve_all.open("GET", "https://127.0.0.1:5000/main/", false)
+                            req_retrieve_all.open("GET", "https://my.containter.local/main/", false)
                             req_retrieve_all.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
                             token = "Bearer" + " " + JSON.parse(jwt)
                             console.log(token)
@@ -230,7 +230,7 @@ function clearText(field)
                         }
                         var req_delete = new XMLHttpRequest()
                         var candidate = document.getElementById("short_url_delete").value
-                        req_delete.open("DELETE", "https://127.0.0.1:5000/main/" + candidate)
+                        req_delete.open("DELETE", "https://my.containter.local/main/" + candidate)
                         req_delete.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
                         req_delete.setRequestHeader("Authorization", "Bearer " + JSON.parse(jwt))
                         req_delete.send()
@@ -256,7 +256,7 @@ function clearText(field)
                             return
                         }
                         var req_delete = new XMLHttpRequest()
-                        req_delete.open("DELETE", "https://127.0.0.1:5000/main/")
+                        req_delete.open("DELETE", "https://my.containter.local/main/")
                         req_delete.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
                         req_delete.setRequestHeader("Authorization", "Bearer " + JSON.parse(jwt))
                         req_delete.send()
