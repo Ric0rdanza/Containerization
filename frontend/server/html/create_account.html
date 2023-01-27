@@ -19,7 +19,7 @@ function clearText(field)
     var code = ""
     var req = new XMLHttpRequest()
     function create() {
-        req.open("POST", "http://127.0.0.1:5000/auth/users", false)
+        req.open("POST", "https://127.0.0.1:5000/auth/users", false)
         req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
         var payload = "username=" + document.getElementById("uid").value + "&password=" + document.getElementById("psw").value
         req.send(payload)
