@@ -7,6 +7,7 @@ spec:
   selector: 
     app: nginx-server
   type: LoadBalancer
+  clusterIP: 10.106.44.10
   ports:
     - port: 5000
-      targetPort: 80
+      targetPort: 443

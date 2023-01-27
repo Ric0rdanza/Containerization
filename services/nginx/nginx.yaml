@@ -18,5 +18,13 @@ spec:
           imagePullPolicy: Always
           ports:
             - name: httpd
-              containerPort: 80
+              containerPort: 443
               protocol: TCP
+          volumeMounts:
+            - name: demoapi-secret
+              mountPath: /opt/certs
+              readOnly: true
+      volumes:
+        - name: demoapi-secret
+          secret:
+            secretName: temp-demoapi-tls-secret
