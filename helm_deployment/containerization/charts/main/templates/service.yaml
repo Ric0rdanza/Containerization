@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "main.fullname" . }}
+spec:
+  sessionAffinity: ClientIP
+  selector: {{- include "main.selectorLabels" . | nindent 8 }}
+  type: {{ .Values.service.type }}
+  clusterIP: {{ .Values.service.clusterIP }}
+  ports:
+    - port: {{ .Values.service.tport }}
+      targetPort: {{ .Values.service.port }}

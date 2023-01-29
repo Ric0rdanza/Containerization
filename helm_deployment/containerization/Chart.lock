@@ -1,0 +1,15 @@
+dependencies:
+- name: main
+  repository: file://charts/main
+  version: 0.1.0
+- name: database
+  repository: file://charts/database
+  version: 0.1.0
+- name: auth
+  repository: file://charts/auth
+  version: 0.1.0
+- name: cert-manager
+  repository: https://charts.jetstack.io
+  version: v1.11.0
+digest: sha256:7a0525283ecaf03889eca7e9c122328d2247714986158fddcd0314eca3c92741
+generated: "2023-01-29T00:53:28.119418+01:00"

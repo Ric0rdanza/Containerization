@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service # Create service
+metadata:
+  name: {{ include "database.fullname" . }}
+  labels: {{- include "database.selectorLabels" . | nindent 6 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+  clusterIP: {{ .Values.service.clusterIP }}
+  selector: {{- include "database.selectorLabels" . | nindent 8 }}
