@@ -8,8 +8,5 @@ dependencies:
 - name: auth
   repository: file://charts/auth
   version: 0.1.0
-- name: cert-manager
-  repository: https://charts.jetstack.io
-  version: v1.11.0
-digest: sha256:7a0525283ecaf03889eca7e9c122328d2247714986158fddcd0314eca3c92741
-generated: "2023-01-29T00:53:28.119418+01:00"
+digest: sha256:439a5211092fb81780fd071c7bca9759b1622efd1b1f1d2d67a66a3df03e205e
+generated: "2023-01-29T11:01:22.979923+01:00"

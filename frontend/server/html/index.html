@@ -27,7 +27,7 @@ function clearText(field)
             <a href="index.html">
             	<span>URL</span>
             	 Shortener
-                <span class="tagline">Group-?</span>
+                <span class="tagline">Group-27</span>
             </a>
         </div> <!-- end of site_title -->
         <div class="cleaner"></div>
@@ -84,7 +84,7 @@ function clearText(field)
                                 "username": document.getElementById("uid").value,
                                 "password": document.getElementById("psw").value
                             }
-                            req.open("POST", "https://my.containter.local/auth/users/login/", false)
+                            req.open("POST", "https://my.containter.local/auth/users/login", false)
                             req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
                             var payload = "username=" + document.getElementById("uid").value + "&password=" + document.getElementById("psw").value
                             req.send(payload)

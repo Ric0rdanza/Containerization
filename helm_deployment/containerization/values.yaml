@@ -39,7 +39,7 @@ securityContext: {}
 service:
   type: LoadBalancer
   port: 443
-  tport: 5000
+  tport: 443
   clusterIP: 10.106.44.10
 
 ingress:
@@ -71,7 +71,7 @@ resources: {}
   #   memory: 128Mi
 
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 20

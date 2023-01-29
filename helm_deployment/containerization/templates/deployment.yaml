@@ -20,14 +20,6 @@ spec:
             - name: https
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: https
-          readinessProbe:
-            httpGet:
-              path: /
-              port: https
           volumeMounts:
             - name: demoapi-secret
               mountPath: /opt/certs
