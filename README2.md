@@ -80,3 +80,52 @@ changing the ip address in the host file.
 
 
 trying to ping this ip address ( 34.140.148.199 ) or open https://my.container.local/ in the browser.
+# RBAC
+Below is for how to create user1, in cert filefolder, there are three roles (admin, read-only and editor) which binding to three users ( user1, user2, user3 )
+
+Below is how to create a client certificate for each user.
+```
+cd cert
+
+#  Generate a key using OpenSSL
+openssl genrsa -out user1.key 2048
+
+# Generate a Client Sign Request (CSR), using key to pretect CSR
+openssl req -new -key user1.key -out user1.csr -subj "/CN=user1/O=group1"
+
+ls ~/.minikube/ # check that the files ca.crt and ca.key exists in this location.
+
+# Generate the certificate (CRT)
+openssl x509 -req -in user1.csr -CA ~/.minikube/ca.crt -CAkey ~/.minikube/ca.key -CAcreateserial -out user1.crt -days 500
+```
+
+Below is how to create the user in kubeconfig using certificate.
+```
+
+# Set a user entry in kubeconfig
+kubectl config set-credentials user1 --client-certificate=user1.crt --client-key=user1.key
+
+# Set a context entry in kubeconfig
+kubectl config set-context user1-context --cluster=minikube --user=user1
+
+# check that it is successfully added to kubeconfig:
+kubectl config view
+
+# Switching to the created user
+# instead of using the minikube context, we want to use user1-context
+kubectl config use-context user1-context
+kubectl config current-context # check the current context: user1-context
+```
+
+Below is how to deploy different roles:
+```
+kubectl config use-context minikube
+kubectl apply -f role-<*>.yaml
+kubectl apply -f role-binding-<*>.yaml
+```
+
+For testing: 
+how to go to different user context for test:
+```
+kubectl config use-context user<*>-context
+```
