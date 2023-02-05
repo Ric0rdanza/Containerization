@@ -39,7 +39,7 @@ spec:
     - server auth
     - client auth
   dnsNames:
-    - my.containter.local
+    - group27.sc
   issuerRef:
     name: ca-issuer
     kind: ClusterIssuer
