@@ -1,0 +1,14 @@
+# role-binding-editor.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: editor-binding
+  namespace: default
+subjects:
+- kind: User
+  name: user2
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: editor-role
+  apiGroup: rbac.authorization.k8s.io
